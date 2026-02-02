@@ -6,10 +6,9 @@ interface LoginScreenProps {
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = (e?: React.FormEvent | React.MouseEvent) => {
     e?.preventDefault();
     setIsLoggingIn(true);
     // Simulate loading/authenticating delay typical of Windows
@@ -57,33 +56,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                     <span className="text-white text-lg font-medium drop-shadow-md">Welcome</span>
                 </div>
             ) : (
-                <form onSubmit={handleLogin} className="flex gap-2 items-center animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <input 
-                        type="password" 
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="px-3 py-1.5 rounded-[3px] border border-[#5d6c7a] bg-white/90 focus:bg-white outline-none w-56 text-sm shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] placeholder-slate-500 text-slate-800"
-                        autoFocus
-                    />
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <button 
-                        type="submit"
-                        className="bg-gradient-to-b from-[#4d90cd] to-[#255888] p-1.5 rounded-[3px] border border-[#1c4268] hover:brightness-110 shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] active:translate-y-[1px] active:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={!password && false} // Allow empty password for demo
+                        onClick={handleLogin}
+                        className="bg-gradient-to-b from-[#4d90cd] to-[#255888] p-2 rounded-[3px] border border-[#1c4268] hover:brightness-110 shadow-[0_1px_3px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.3)] active:translate-y-[1px] active:shadow-none transition-all"
+                        aria-label="Login"
                     >
-                        <ArrowRight size={18} className="text-white drop-shadow-sm" />
+                        <ArrowRight size={20} className="text-white drop-shadow-sm" />
                     </button>
-                </form>
+                </div>
             )}
          </div>
-      </div>
-
-      {/* Footer Branding */}
-      <div className="absolute bottom-12 w-full text-center z-10">
-          <div className="text-white/80 text-lg font-medium drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] flex items-center justify-center gap-2">
-            <span className="text-2xl">Windows 7</span>
-            <span className="text-sm self-end mb-1 opacity-90">Ultimate</span>
-          </div>
       </div>
       
       {/* Power Button (Decorative) */}

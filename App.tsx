@@ -208,10 +208,15 @@ const App: React.FC = () => {
 
   const handleShutdown = () => {
     setIsShuttingDown(true);
-    // Simulate shutdown process
+    // Transition to login screen after delay instead of reload
     setTimeout(() => {
-        window.location.reload();
-    }, 3000);
+        setIsShuttingDown(false);
+        setIsLoggedIn(false);
+        // Reset state
+        setWindows(INITIAL_WINDOWS);
+        setActiveWindowId(AppId.ABOUT);
+        setIsStartOpen(false);
+    }, 4000);
   };
 
   // Extra Desktop Icons mapping
@@ -245,10 +250,22 @@ const App: React.FC = () => {
 
   if (isShuttingDown) {
       return (
-          <div className="fixed inset-0 bg-[#0c2e42] flex items-center justify-center z-[9999] cursor-wait select-none font-[Segoe UI,sans-serif]">
-               <div className="flex flex-col items-center gap-4">
-                   <div className="w-8 h-8 rounded-full border-t-2 border-r-2 border-white/50 animate-spin"></div>
-                   <span className="text-white text-lg font-light tracking-wide">Shutting down...</span>
+          <div className="fixed inset-0 z-[9999] cursor-wait select-none font-[Segoe UI,sans-serif] overflow-hidden">
+               {/* Background with blur to mimic Windows 7 overlay */}
+               <div className="absolute inset-0 bg-black"></div>
+               <div 
+                  className="absolute inset-0 bg-cover bg-center opacity-40 blur-sm"
+                  style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")' }}
+               ></div>
+               
+               <div className="relative z-10 h-full w-full flex flex-col items-center justify-center animate-in fade-in duration-1000">
+                   <div className="flex flex-col items-center gap-6">
+                       <div className="w-12 h-12 rounded-full border-4 border-white/20 border-t-white/90 border-r-white/90 animate-spin shadow-[0_0_15px_rgba(255,255,255,0.3)]"></div>
+                       <div className="text-center space-y-1">
+                            <h2 className="text-white text-2xl font-light tracking-wide drop-shadow-lg">Shutting down...</h2>
+                            <p className="text-blue-100/80 text-base font-light tracking-wide mt-2">Thank you for visiting.</p>
+                       </div>
+                   </div>
                </div>
           </div>
       );
