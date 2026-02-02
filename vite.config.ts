@@ -5,7 +5,8 @@ export default defineConfig({
   plugins: [react()],
   define: {
     // Polyfill process.env.API_KEY for the browser environment
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
+    // Use || '' to ensure JSON.stringify doesn't return undefined if the env var is missing
+    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || ''),
   },
   build: {
     outDir: 'dist',
@@ -15,6 +16,8 @@ export default defineConfig({
         'react',
         'react-dom',
         'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'lucide-react',
         '@google/genai',
         'howler'

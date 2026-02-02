@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Windows 7 Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -12,6 +12,7 @@
         font-family: 'Segoe UI', 'Open Sans', Tahoma, Geneva, Verdana, sans-serif;
         overflow: hidden;
         user-select: none;
+        touch-action: none; /* Prevent browser zooming/scrolling on mobile to feel like an app */
       }
       
       /* Custom Scrollbar for Aero feel */
@@ -54,6 +55,8 @@
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
+    "react/jsx-runtime": "https://esm.sh/react@^19.2.4/jsx-runtime",
+    "react/jsx-dev-runtime": "https://esm.sh/react@^19.2.4/jsx-dev-runtime",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
     "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
     "howler": "https://esm.sh/howler@2.2.4",
