@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Image, Download, Loader2, AlertTriangle, Key } from 'lucide-react';
 import { ImageResolution } from '../../types';
@@ -31,7 +32,9 @@ export const GeminiImageApp: React.FC = () => {
     if (!prompt.trim()) return;
     if (!hasKey) {
         await handleSelectKey();
-        if (!hasKey) return; // Still no key
+        const recheck = await checkApiKeySelection();
+        if (!recheck) return; 
+        setHasKey(true);
     }
 
     setLoading(true);

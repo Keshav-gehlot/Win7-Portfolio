@@ -9,9 +9,10 @@ import { AboutApp } from './components/apps/AboutApp';
 import { ProjectsApp } from './components/apps/ProjectsApp';
 import { ChatApp } from './components/apps/ChatApp';
 import { ContactApp } from './components/apps/ContactApp';
-import { GeminiImageApp } from './components/apps/GeminiImageApp';
+import { NoApp } from './components/apps/NoApp';
+import { TerminalApp } from './components/apps/TerminalApp';
 import { AppId, WindowState } from './types';
-import { User, Briefcase, Mail, MessageSquare, Github, Image as ImageIcon } from 'lucide-react';
+import { User, Briefcase, Mail, MessageSquare, Github, ShieldAlert, Terminal } from 'lucide-react';
 import { soundService } from './services/soundService';
 
 const INITIAL_WINDOWS: WindowState[] = [
@@ -19,7 +20,7 @@ const INITIAL_WINDOWS: WindowState[] = [
     id: AppId.ABOUT,
     title: 'About Me',
     icon: User,
-    isOpen: true,
+    isOpen: false,
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
@@ -60,24 +61,35 @@ const INITIAL_WINDOWS: WindowState[] = [
     size: { width: 650, height: 450 },
   },
   {
-    id: AppId.AI_IMAGE_GEN,
-    title: 'AI Image Generator',
-    icon: ImageIcon,
+    id: AppId.NO_APP,
+    title: 'System Administrator Request Tool',
+    icon: ShieldAlert,
     isOpen: false,
     isMinimized: false,
     isMaximized: false,
     zIndex: 5,
     position: { x: 250, y: 170 },
-    size: { width: 700, height: 550 },
+    size: { width: 450, height: 380 },
+  },
+  {
+    id: AppId.TERMINAL,
+    title: 'Command Prompt',
+    icon: Terminal,
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+    zIndex: 6,
+    position: { x: 300, y: 200 },
+    size: { width: 640, height: 400 },
   },
 ];
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [windows, setWindows] = useState<WindowState[]>(INITIAL_WINDOWS);
-  const [activeWindowId, setActiveWindowId] = useState<AppId | null>(AppId.ABOUT);
+  const [activeWindowId, setActiveWindowId] = useState<AppId | null>(null);
   const [isStartOpen, setIsStartOpen] = useState(false);
-  const [maxZIndex, setMaxZIndex] = useState(5);
+  const [maxZIndex, setMaxZIndex] = useState(6);
   
   // New States
   const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number } | null>(null);
@@ -106,100 +118,136 @@ const App: React.FC = () => {
     setIsLoggedIn(true);
   };
 
-  const handleFocus = (id: AppId) => {
+  const handleFocus = useCallback((id: AppId) => {
     setActiveWindowId(id);
     setWindows(prev => prev.map(w => 
       w.id === id ? { ...w, zIndex: maxZIndex + 1, isMinimized: false } : w
     ));
     setMaxZIndex(z => z + 1);
-  };
+  }, [maxZIndex]);
 
-  const handleOpenApp = (id: AppId) => {
+  const handleOpenApp = useCallback((id: AppId) => {
     if (id === AppId.GITHUB) {
         soundService.play('click');
         window.open('https://github.com/Keshav-gehlot', '_blank');
         return;
     }
 
-    const target = windows.find(w => w.id === id);
-    if (!target) return;
+    setWindows(prev => {
+        const target = prev.find(w => w.id === id);
+        if (!target) return prev;
+        
+        if (target.isOpen) {
+            // Already open, just focus
+             return prev.map(w => 
+                w.id === id ? { ...w, zIndex: maxZIndex + 1, isMinimized: false } : w
+            );
+        } else {
+            soundService.play('open');
+            return prev.map(w => 
+                w.id === id ? { ...w, isOpen: true, zIndex: maxZIndex + 1, isMinimized: false } : w
+            );
+        }
+    });
+    
+    // Side effects that don't depend on prev state directly for calculations
+    setActiveWindowId(id);
+    setMaxZIndex(z => z + 1);
+  }, [maxZIndex]);
 
-    if (target.isOpen) {
-        handleFocus(id);
-    } else {
-        soundService.play('open');
-        setWindows(prev => prev.map(w => 
-            w.id === id ? { ...w, isOpen: true, zIndex: maxZIndex + 1, isMinimized: false } : w
-        ));
-        setMaxZIndex(z => z + 1);
-        setActiveWindowId(id);
-    }
-  };
-
-  const handleClose = (id: AppId) => {
+  const handleClose = useCallback((id: AppId) => {
     soundService.play('close');
     setWindows(prev => prev.map(w => w.id === id ? { ...w, isOpen: false, isMinimized: false } : w));
-    if (activeWindowId === id) setActiveWindowId(null);
-  };
+    setActiveWindowId(prev => prev === id ? null : prev);
+  }, []);
 
-  const handleMinimize = (id: AppId) => {
+  const handleMinimize = useCallback((id: AppId) => {
     soundService.play('minimize');
     setWindows(prev => prev.map(w => w.id === id ? { ...w, isMinimized: true } : w));
-    if (activeWindowId === id) setActiveWindowId(null);
-  };
+    setActiveWindowId(prev => prev === id ? null : prev);
+  }, []);
 
-  const handleMaximize = (id: AppId) => {
-     setWindows(prev => prev.map(w => {
-         if (w.id !== id) return w;
-         if (w.isMaximized) {
-             soundService.play('minimize');
-             return { 
-                ...w, 
-                isMaximized: false, 
-                position: { x: 50 + (Math.random() * 50), y: 50 + (Math.random() * 50) }, 
-                size: w.id === AppId.PROJECTS ? { width: 750, height: 500 } : { width: 600, height: 450 } 
-             };
-         } else {
-             soundService.play('open');
-             return { ...w, isMaximized: true, position: { x: 0, y: 0 }, size: { width: window.innerWidth, height: window.innerHeight - 40 } };
+  const handleMaximize = useCallback((id: AppId) => {
+     setWindows(prev => {
+         const target = prev.find(w => w.id === id);
+         if (target) {
+            if (target.isMaximized) {
+                 soundService.play('minimize'); // Sound for restore
+            } else {
+                 soundService.play('open'); // Sound for maximize
+            }
          }
-     }));
-     handleFocus(id);
-  };
+         return prev.map(w => {
+             if (w.id !== id) return w;
+             if (w.isMaximized) {
+                 return { 
+                    ...w, 
+                    isMaximized: false, 
+                    position: { x: 50 + (Math.random() * 50), y: 50 + (Math.random() * 50) }, 
+                    size: w.id === AppId.PROJECTS ? { width: 750, height: 500 } : { width: 600, height: 450 } 
+                 };
+             } else {
+                 return { ...w, isMaximized: true, position: { x: 0, y: 0 }, size: { width: window.innerWidth, height: window.innerHeight - 40 } };
+             }
+         });
+     });
+     // We also need to focus
+     setActiveWindowId(id);
+     setMaxZIndex(z => z + 1);
+  }, []);
 
-  const handleMove = (id: AppId, x: number, y: number) => {
+  const handleMove = useCallback((id: AppId, x: number, y: number) => {
     setWindows(prev => prev.map(w => 
       w.id === id && !w.isMaximized ? { ...w, position: { x, y } } : w
     ));
-  };
+  }, []);
 
-  const handleResize = (id: AppId, width: number, height: number, x: number, y: number) => {
+  const handleResize = useCallback((id: AppId, width: number, height: number, x: number, y: number) => {
       setWindows(prev => prev.map(w => 
           w.id === id ? { ...w, size: { width, height }, position: { x, y } } : w
       ));
-  };
+  }, []);
 
-  const handleTaskbarClick = (id: AppId) => {
-      const w = windows.find(win => win.id === id);
-      soundService.play('click');
+  const handleTaskbarClick = useCallback((id: AppId) => {
+      setWindows(prev => {
+          const w = prev.find(win => win.id === id);
+          if (w?.isMinimized || activeWindowId !== id) {
+              soundService.play('click');
+              // Focus logic
+              return prev.map(win => 
+                win.id === id ? { ...win, zIndex: maxZIndex + 1, isMinimized: false } : win
+              );
+          } else {
+              soundService.play('minimize');
+              // Minimize logic
+              return prev.map(win => 
+                win.id === id ? { ...win, isMinimized: true } : win
+              );
+          }
+      });
+      
+      // Update side states
+      const w = windows.find(win => win.id === id); // Note: using closure windows here is slightly stale but okay for click handler which isn't rapid
       if (w?.isMinimized || activeWindowId !== id) {
-          handleFocus(id);
+          setActiveWindowId(id);
+          setMaxZIndex(z => z + 1);
       } else {
-          handleMinimize(id);
+          setActiveWindowId(null);
       }
       setIsStartOpen(false);
-  };
+  }, [activeWindowId, maxZIndex, windows]);
 
-  const handleShowDesktop = () => {
-    const anyOpen = windows.some(w => w.isOpen && !w.isMinimized);
-    if (anyOpen) {
-        soundService.play('minimize');
-        setWindows(prev => prev.map(w => ({ ...w, isMinimized: true })));
-        setActiveWindowId(null);
-    } else {
-        // Restore logic could be implemented here to toggle back
-    }
-  };
+  const handleShowDesktop = useCallback(() => {
+    setWindows(prev => {
+        const anyOpen = prev.some(w => w.isOpen && !w.isMinimized);
+        if (anyOpen) {
+            soundService.play('minimize');
+            return prev.map(w => ({ ...w, isMinimized: true }));
+        }
+        return prev;
+    });
+    setActiveWindowId(null);
+  }, []);
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -208,23 +256,21 @@ const App: React.FC = () => {
 
   const handleShutdown = () => {
     setIsShuttingDown(true);
-    // Transition to login screen after delay instead of reload
     setTimeout(() => {
         setIsShuttingDown(false);
         setIsLoggedIn(false);
-        // Reset state
         setWindows(INITIAL_WINDOWS);
-        setActiveWindowId(AppId.ABOUT);
+        setActiveWindowId(null);
         setIsStartOpen(false);
     }, 4000);
   };
 
-  // Extra Desktop Icons mapping
   const desktopIcons = [
       { id: AppId.ABOUT, label: 'About Me', icon: User },
       { id: AppId.PROJECTS, label: 'Projects', icon: Briefcase },
       { id: AppId.CHAT, label: 'Chat', icon: MessageSquare },
-      { id: AppId.AI_IMAGE_GEN, label: 'AI Image Gen', icon: ImageIcon },
+      { id: AppId.TERMINAL, label: 'Terminal', icon: Terminal },
+      { id: AppId.NO_APP, label: 'Admin Request', icon: ShieldAlert },
       { id: AppId.CONTACT, label: 'Contact Me', icon: Mail },
       { id: AppId.GITHUB, label: 'GitHub', icon: Github },
   ];
@@ -251,7 +297,6 @@ const App: React.FC = () => {
   if (isShuttingDown) {
       return (
           <div className="fixed inset-0 z-[9999] cursor-wait select-none font-[Segoe UI,sans-serif] overflow-hidden">
-               {/* Background with blur to mimic Windows 7 overlay */}
                <div className="absolute inset-0 bg-black"></div>
                <div 
                   className="absolute inset-0 bg-cover bg-center opacity-40 blur-sm"
@@ -284,24 +329,20 @@ const App: React.FC = () => {
       }}
       onContextMenu={handleContextMenu}
     >
-      {/* Background Layer - Static Wallpaper */}
       <div 
         className="absolute inset-0 z-[-2]"
         style={{
             background: 'url("https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80") center/cover no-repeat'
         }}
       />
-
-      {/* Interactive Layer - Particles */}
       <LiveBackground />
 
-      {/* Desktop Icons */}
-      <div className="absolute top-4 left-4 flex flex-col gap-6 items-start z-0">
+      <div className="absolute top-0 left-0 bottom-10 w-full flex flex-col flex-wrap content-start items-start gap-4 p-4 z-0 pointer-events-none">
         {desktopIcons.map(icon => (
             <button 
                 key={icon.id}
                 onDoubleClick={(e) => { e.stopPropagation(); handleOpenApp(icon.id); }}
-                className="flex flex-col items-center gap-1 w-[80px] group text-center cursor-default hover:bg-white/10 rounded border border-transparent hover:border-white/20 p-2 transition-colors focus:bg-white/20 focus:border-white/30 active:bg-white/20"
+                className="pointer-events-auto flex flex-col items-center gap-1 w-[80px] h-[90px] group text-center cursor-default hover:bg-white/10 rounded border border-transparent hover:border-white/20 p-2 transition-colors focus:bg-white/20 focus:border-white/30 active:bg-white/20"
                 onClick={(e) => { e.stopPropagation(); soundService.play('click'); }}
             >
                 <div className="drop-shadow-2xl filter shadow-black transition-transform group-hover:scale-105 group-active:scale-95">
@@ -314,7 +355,6 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      {/* Windows Layer */}
       {windows.map(window => (
         <Window
           key={window.id}
@@ -330,18 +370,17 @@ const App: React.FC = () => {
           {window.id === AppId.PROJECTS && <ProjectsApp />}
           {window.id === AppId.CHAT && <ChatApp />}
           {window.id === AppId.CONTACT && <ContactApp />}
-          {window.id === AppId.AI_IMAGE_GEN && <GeminiImageApp />}
+          {window.id === AppId.NO_APP && <NoApp />}
+          {window.id === AppId.TERMINAL && <TerminalApp />}
         </Window>
       ))}
 
-      {/* Context Menu */}
       {contextMenu && (
           <ContextMenu 
             x={contextMenu.x} 
             y={contextMenu.y} 
             onClose={() => setContextMenu(null)}
             onRefresh={() => {
-                // Flash effect for refresh
                 const bg = document.createElement('div');
                 bg.className = "absolute inset-0 bg-white/20 z-50 pointer-events-none";
                 document.body.appendChild(bg);
@@ -350,7 +389,6 @@ const App: React.FC = () => {
           />
       )}
 
-      {/* System UI */}
       <StartMenu 
         isOpen={isStartOpen} 
         onOpenApp={handleOpenApp} 

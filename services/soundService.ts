@@ -6,6 +6,8 @@ class SoundService {
   private enabled: boolean = true;
 
   constructor() {
+    // Increase pool size to handle more concurrent sounds if needed
+    Howler.html5PoolSize = 20;
     this.preloadSounds();
   }
 

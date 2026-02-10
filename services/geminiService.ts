@@ -1,59 +1,6 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-import { ImageResolution, ChatMessage } from "../types";
 
-// Helper to check for API Key selection (mocked for environment if needed, but using window object as per prompt)
-export const checkApiKeySelection = async (): Promise<boolean> => {
-  if (typeof (window as any).aistudio?.hasSelectedApiKey === 'function') {
-    return await (window as any).aistudio.hasSelectedApiKey();
-  }
-  return true; // Fallback if not in the specific environment, assuming env var exists
-};
-
-export const promptApiKeySelection = async (): Promise<void> => {
-  if (typeof (window as any).aistudio?.openSelectKey === 'function') {
-    await (window as any).aistudio.openSelectKey();
-  }
-};
-
-export const generateImage = async (prompt: string, resolution: ImageResolution): Promise<string | null> => {
-  try {
-    // Determine model based on resolution request as per prompt guidelines
-    // High quality (2K/4K) -> gemini-3-pro-image-preview
-    // 1K can be either, but prompt says "Upgrade to ... if user requests high-quality".
-    // Prompt feature request says "generate images ... using model gemini-3-pro-image-preview".
-    // So we will use pro-image-preview for all sizes in this specific "Nano Banana Pro" feature.
-    
-    // Create new instance to ensure fresh key if just selected
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
-      contents: {
-        parts: [{ text: prompt }],
-      },
-      config: {
-        imageConfig: {
-          imageSize: resolution,
-          aspectRatio: "1:1" // Default square
-        }
-      },
-    });
-
-    // Extract image
-    if (response.candidates && response.candidates[0].content.parts) {
-      for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-          return `data:image/png;base64,${part.inlineData.data}`;
-        }
-      }
-    }
-    return null;
-
-  } catch (error) {
-    console.error("Image generation failed:", error);
-    throw error;
-  }
-};
+import { GoogleGenAI } from "@google/genai";
+import { ChatMessage, ImageResolution } from "../types";
 
 const KESHAV_PORTFOLIO_CONTEXT = `
 You are an AI assistant for Keshav Gehlot's portfolio. You are helpful, professional, and knowledgeable about Keshav's skills, experience, and projects.
@@ -93,7 +40,7 @@ Computer Science student specializing in Cybersecurity, currently pursuing Certi
 **Projects:**
 - **CropSenz (AI Crop Doctor):** AI app using CNN to diagnose plant diseases from leaf images.
 - **Net-Watch (Network Monitoring Tool):** Python/Scapy tool for real-time device identification and bandwidth tracking.
-- **Kraken (Password Cracker):** Multithreaded tool for dictionary and brute-force attacks on hashes.
+- **Kraken (Password Cracker):** Multithreaded tool for automating security assessments against hashed passwords using dictionary and brute-force methods.
 - **AI Stock Predictor:** LSTM neural network for forecasting stock trends.
 - **Malware Visualizer:** Forensic tool to visualize malware execution paths.
 - **Air Piano:** Virtual instrument using hand tracking.
@@ -130,10 +77,69 @@ export const sendChatMessage = async (history: ChatMessage[], newMessage: string
       }))
     });
 
-    const result: GenerateContentResponse = await chat.sendMessage({ message: newMessage });
+    const result = await chat.sendMessage({ message: newMessage });
     return result.text || "I couldn't generate a text response.";
   } catch (error) {
     console.error("Chat failed:", error);
     return "Sorry, I encountered an error processing your request.";
   }
+};
+
+export const checkApiKeySelection = async (): Promise<boolean> => {
+  if (typeof window !== 'undefined' && (window as any).aistudio) {
+      return await (window as any).aistudio.hasSelectedApiKey();
+  }
+  // Fallback if not running in AI Studio wrapper
+  return !!process.env.API_KEY;
+};
+
+export const promptApiKeySelection = async (): Promise<void> => {
+  if (typeof window !== 'undefined' && (window as any).aistudio) {
+      await (window as any).aistudio.openSelectKey();
+  } else {
+      console.warn("API Key selection is not available in this environment.");
+  }
+};
+
+export const generateImage = async (prompt: string, resolution: ImageResolution): Promise<string | null> => {
+    // Model selection: 'gemini-3-pro-image-preview' for High Quality (2K/4K), 'gemini-2.5-flash-image' for others.
+    const isHighQuality = resolution === ImageResolution.TWO_K || resolution === ImageResolution.FOUR_K;
+    const model = isHighQuality ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
+
+    // Must create new instance to ensure latest API key is used
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    const config: any = {
+        imageConfig: {
+             aspectRatio: "1:1"
+        }
+    };
+
+    // imageSize is only supported for gemini-3-pro-image-preview
+    if (isHighQuality) {
+        config.imageConfig.imageSize = resolution;
+    }
+
+    try {
+        const response = await ai.models.generateContent({
+            model: model,
+            contents: {
+                parts: [{ text: prompt }]
+            },
+            config: config
+        });
+
+        // The output response may contain both image and text parts; iterate to find the image.
+        if (response.candidates?.[0]?.content?.parts) {
+            for (const part of response.candidates[0].content.parts) {
+                if (part.inlineData) {
+                    return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                }
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error("Image generation failed:", error);
+        throw error;
+    }
 };

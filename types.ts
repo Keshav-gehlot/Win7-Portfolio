@@ -5,7 +5,8 @@ export enum AppId {
   CONTACT = 'CONTACT',
   CHAT = 'CHAT',
   GITHUB = 'GITHUB',
-  AI_IMAGE_GEN = 'AI_IMAGE_GEN',
+  NO_APP = 'NO_APP',
+  TERMINAL = 'TERMINAL',
 }
 
 export interface WindowState {
@@ -20,14 +21,14 @@ export interface WindowState {
   size: { width: number; height: number };
 }
 
-export enum ImageResolution {
-  ONE_K = '1K',
-  TWO_K = '2K',
-  FOUR_K = '4K',
-}
-
 export interface ChatMessage {
   role: 'user' | 'model';
   text: string;
   timestamp: Date;
+}
+
+export enum ImageResolution {
+  ONE_K = '1K',
+  TWO_K = '2K',
+  FOUR_K = '4K',
 }

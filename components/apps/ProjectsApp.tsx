@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { 
   ArrowLeft, ArrowRight, Search, ChevronRight, 
   Monitor, HardDrive, Star, Download, Globe, 
-  ShieldAlert, Cpu, Eye, Terminal, Code, ChevronDown, Folder, X,
-  Lock, Activity, Bug, Sprout, Music, Hand, Aperture, TrendingUp, Mail, Youtube, Heart, Trophy,
+  ShieldAlert, ChevronDown, Folder, X,
+  Bug, Sprout, Music, Hand, TrendingUp, Mail, Youtube, Heart, Trophy,
   Key, Wifi, Camera
 } from 'lucide-react';
 
@@ -164,9 +164,9 @@ export const ProjectsApp: React.FC = () => {
   const selectedProject = projects.find(p => p.id === selectedId);
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#f0f2f5] select-none text-slate-800 font-[Segoe UI,sans-serif] relative">
+    <div className="flex flex-col h-full w-full bg-[#f0f0f0] select-none text-slate-800 font-[Segoe UI,sans-serif] relative">
       {/* Top Bar: Navigation & Address */}
-      <div className="flex items-center gap-2 p-2 bg-[#f0f2f5] border-b border-[#d9d9d9]">
+      <div className="flex items-center gap-2 p-2 bg-[#f0f0f0] border-b border-[#d9d9d9]">
         <div className="flex gap-1 text-slate-400">
            <button className="p-1 hover:bg-[#dcebfd] hover:border hover:border-[#7da2ce] rounded-full border border-transparent transition-colors disabled:opacity-50" title="Back">
              <ArrowLeft size={16} className="text-[#607d8b]" />

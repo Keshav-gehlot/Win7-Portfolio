@@ -32,11 +32,14 @@ export const Window: React.FC<WindowProps> = ({
 
   const windowRef = useRef<HTMLDivElement>(null);
 
+  // Extract needed props for useEffect dependencies to avoid object dependency
+  const { id, isMaximized, position, size, isOpen, isMinimized, zIndex } = windowState;
+
   // Mouse & Touch Move Handlers
   useEffect(() => {
     const handleMove = (clientX: number, clientY: number) => {
-      if (isDragging && !windowState.isMaximized) {
-        onMove(windowState.id, clientX - dragOffset.x, clientY - dragOffset.y);
+      if (isDragging && !isMaximized) {
+        onMove(id, clientX - dragOffset.x, clientY - dragOffset.y);
       } else if (isResizing && resizeDir) {
         let newWidth = startResize.width;
         let newHeight = startResize.height;
@@ -61,7 +64,7 @@ export const Window: React.FC<WindowProps> = ({
         if (newWidth < 300) newWidth = 300;
         if (newHeight < 200) newHeight = 200;
 
-        onResize(windowState.id, newWidth, newHeight, newX, newY);
+        onResize(id, newWidth, newHeight, newX, newY);
       }
     };
 
@@ -100,14 +103,14 @@ export const Window: React.FC<WindowProps> = ({
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleEnd);
     };
-  }, [isDragging, isResizing, dragOffset, startResize, resizeDir, onMove, onResize, windowState]);
+  }, [isDragging, isResizing, dragOffset, startResize, resizeDir, onMove, onResize, id, isMaximized]);
 
   const handleStartDrag = (clientX: number, clientY: number) => {
-    onFocus(windowState.id);
+    onFocus(id);
     setIsDragging(true);
     setDragOffset({
-      x: clientX - windowState.position.x,
-      y: clientY - windowState.position.y
+      x: clientX - position.x,
+      y: clientY - position.y
     });
   };
 
@@ -118,16 +121,12 @@ export const Window: React.FC<WindowProps> = ({
   };
   
   const handleTouchStart = (e: React.TouchEvent) => {
-      // Prevent default to stop scrolling, but let click events fire for children if needed?
-      // Actually for titlebar drag, we generally want to prevent scroll.
-      // e.preventDefault(); 
       handleStartDrag(e.touches[0].clientX, e.touches[0].clientY);
   };
 
   const handleResizeStart = (e: React.MouseEvent | React.TouchEvent, dir: string) => {
       e.stopPropagation();
-      // e.preventDefault(); 
-      onFocus(windowState.id);
+      onFocus(id);
       setIsResizing(true);
       setResizeDir(dir);
       
@@ -137,14 +136,14 @@ export const Window: React.FC<WindowProps> = ({
       setStartResize({
           x: clientX,
           y: clientY,
-          width: windowState.size.width,
-          height: windowState.size.height,
-          posX: windowState.position.x,
-          posY: windowState.position.y
+          width: size.width,
+          height: size.height,
+          posX: position.x,
+          posY: position.y
       });
   };
 
-  if (!windowState.isOpen || windowState.isMinimized) return null;
+  if (!isOpen || isMinimized) return null;
 
   return (
     <div
@@ -153,18 +152,18 @@ export const Window: React.FC<WindowProps> = ({
         isDragging ? 'cursor-grabbing' : ''
       }`}
       style={{
-        left: windowState.position.x,
-        top: windowState.position.y,
-        width: windowState.size.width,
-        height: windowState.size.height,
-        zIndex: windowState.zIndex,
+        left: position.x,
+        top: position.y,
+        width: size.width,
+        height: size.height,
+        zIndex: zIndex,
         touchAction: 'none' // Important for touch devices
       }}
-      onMouseDown={() => onFocus(windowState.id)}
-      onTouchStart={() => onFocus(windowState.id)}
+      onMouseDown={() => onFocus(id)}
+      onTouchStart={() => onFocus(id)}
     >
       {/* Resize Handles (Invisible but larger for touch) */}
-      {!windowState.isMaximized && (
+      {!isMaximized && (
         <>
             <div className="absolute top-0 left-0 w-full h-2 cursor-n-resize z-50 -mt-1" onMouseDown={(e) => handleResizeStart(e, 'n')} onTouchStart={(e) => handleResizeStart(e, 'n')} />
             <div className="absolute bottom-0 left-0 w-full h-2 cursor-s-resize z-50 -mb-1" onMouseDown={(e) => handleResizeStart(e, 's')} onTouchStart={(e) => handleResizeStart(e, 's')} />
@@ -194,23 +193,23 @@ export const Window: React.FC<WindowProps> = ({
         
         <div 
           className="flex items-center window-controls gap-1"
-          onMouseDown={(e) => { e.stopPropagation(); onFocus(windowState.id); }}
-          onTouchStart={(e) => { e.stopPropagation(); onFocus(windowState.id); }}
+          onMouseDown={(e) => { e.stopPropagation(); onFocus(id); }}
+          onTouchStart={(e) => { e.stopPropagation(); onFocus(id); }}
         >
           <button
-            onClick={(e) => { e.stopPropagation(); onMinimize(windowState.id); }}
+            onClick={(e) => { e.stopPropagation(); onMinimize(id); }}
             className="w-6 h-5 flex items-center justify-center hover:bg-white/40 rounded-sm border border-transparent hover:border-white/30 transition-colors"
           >
             <Minus size={12} className="text-slate-800" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); onMaximize(windowState.id); }}
+            onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
             className="w-6 h-5 flex items-center justify-center hover:bg-white/40 rounded-sm border border-transparent hover:border-white/30 transition-colors"
           >
-             {windowState.isMaximized ? <Square size={10} className="text-slate-800" /> : <Maximize2 size={10} className="text-slate-800" />}
+             {isMaximized ? <Square size={10} className="text-slate-800" /> : <Maximize2 size={10} className="text-slate-800" />}
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); onClose(windowState.id); }}
+            onClick={(e) => { e.stopPropagation(); onClose(id); }}
             className="w-10 h-5 flex items-center justify-center hover:bg-[#e81123] bg-transparent hover:text-white rounded-sm border border-transparent transition-colors group"
           >
             <X size={14} className="text-slate-800 group-hover:text-white" />

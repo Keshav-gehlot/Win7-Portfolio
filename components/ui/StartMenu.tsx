@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Power, Search, ChevronRight, FileText, Folder, MessageSquare, Mail, Github, Lock, Image as ImageIcon } from 'lucide-react';
+import { User, Search, ChevronRight, FileText, Folder, MessageSquare, Mail, Github, Lock, ShieldAlert, Terminal } from 'lucide-react';
 import { AppId } from '../../types';
 import { soundService } from '../../services/soundService';
 
@@ -17,7 +17,8 @@ export const StartMenu: React.FC<StartMenuProps> = ({ isOpen, onOpenApp, onClose
     { id: AppId.ABOUT, label: 'About Me', icon: FileText, sub: 'Portfolio' },
     { id: AppId.PROJECTS, label: 'Projects', icon: Folder, sub: 'Explorer' },
     { id: AppId.CHAT, label: 'Chat', icon: MessageSquare, sub: 'AI Chat' },
-    { id: AppId.AI_IMAGE_GEN, label: 'AI Image Gen', icon: ImageIcon, sub: 'Nano Banana Pro' },
+    { id: AppId.TERMINAL, label: 'Command Prompt', icon: Terminal, sub: 'System Tool' },
+    { id: AppId.NO_APP, label: 'Admin Request', icon: ShieldAlert, sub: 'Admin Control' },
     { id: AppId.CONTACT, label: 'Contact', icon: Mail, sub: 'E-mail' },
     { id: AppId.GITHUB, label: 'GitHub', icon: Github, sub: 'Source Code' },
   ];
