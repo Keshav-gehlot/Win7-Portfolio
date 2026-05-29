@@ -1,5 +1,6 @@
 {
   "name": "Win7 Portfolio",
   "description": "A Windows 7-themed portfolio featuring Aero Glass aesthetics and draggable windows.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }

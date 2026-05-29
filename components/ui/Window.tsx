@@ -152,10 +152,12 @@ export const Window: React.FC<WindowProps> = ({
         isDragging ? 'cursor-grabbing' : ''
       }`}
       style={{
-        left: position.x,
-        top: position.y,
-        width: size.width,
-        height: size.height,
+        left: Math.max(0, Math.min(position.x, typeof window !== 'undefined' ? window.innerWidth - 50 : position.x)),
+        top: Math.max(0, Math.min(position.y, typeof window !== 'undefined' ? window.innerHeight - 80 : position.y)),
+        width: isMaximized ? '100vw' : size.width,
+        height: isMaximized ? 'calc(100vh - 44px)' : size.height,
+        maxWidth: isMaximized ? '100vw' : `calc(100vw - ${Math.max(0, Math.min(position.x, typeof window !== 'undefined' ? window.innerWidth - 50 : position.x))}px)`,
+        maxHeight: isMaximized ? 'calc(100vh - 44px)' : `calc(100vh - 44px - ${Math.max(0, Math.min(position.y, typeof window !== 'undefined' ? window.innerHeight - 80 : position.y))}px)`,
         zIndex: zIndex,
         touchAction: 'none' // Important for touch devices
       }}
@@ -180,39 +182,41 @@ export const Window: React.FC<WindowProps> = ({
 
       {/* Window Header (Aero Titlebar) */}
       <div
-        className="h-8 flex items-center justify-between px-2 cursor-default select-none bg-gradient-to-b from-white/50 to-transparent border-b border-white/20 shrink-0 touch-none"
+        className="h-8 flex items-center justify-between px-2 cursor-default select-none bg-gradient-to-b from-white/70 via-white/30 to-white/10 border-b border-white/50 shrink-0 touch-none shadow-[0_1px_0_rgba(0,0,0,0.1)] relative"
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        <div className="flex items-center gap-2 px-1 text-slate-800 shadow-black drop-shadow-sm pointer-events-none">
-          <windowState.icon size={16} className="text-slate-900 opacity-80" />
-          <span className="text-xs font-semibold tracking-wide text-slate-900/90" style={{ textShadow: '0 0 5px rgba(255,255,255,0.8)' }}>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"></div>
+        <div className="flex items-center gap-2 px-1 pointer-events-none relative z-10">
+          <windowState.icon size={16} className="text-slate-900 drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" />
+          <span className="text-xs font-semibold tracking-wide text-slate-900 shadow-white drop-shadow-md" style={{ textShadow: '0 1px 3px rgba(255,255,255,0.9), 0 0 5px rgba(255,255,255,0.8)' }}>
             {windowState.title}
           </span>
         </div>
         
         <div 
-          className="flex items-center window-controls gap-1"
+          className="flex items-center window-controls gap-0.5 relative z-10 h-full py-1"
           onMouseDown={(e) => { e.stopPropagation(); onFocus(id); }}
           onTouchStart={(e) => { e.stopPropagation(); onFocus(id); }}
         >
           <button
             onClick={(e) => { e.stopPropagation(); onMinimize(id); }}
-            className="w-6 h-5 flex items-center justify-center hover:bg-white/40 rounded-sm border border-transparent hover:border-white/30 transition-colors"
+            className="w-7 h-full flex items-center justify-center hover:bg-white/50 rounded-[3px] border border-transparent hover:border-white/50 transition-colors shadow-sm hover:shadow-[0_0_5px_rgba(255,255,255,0.8)]"
           >
             <Minus size={12} className="text-slate-800" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onMaximize(id); }}
-            className="w-6 h-5 flex items-center justify-center hover:bg-white/40 rounded-sm border border-transparent hover:border-white/30 transition-colors"
+            className="w-7 h-full flex items-center justify-center hover:bg-white/50 rounded-[3px] border border-transparent hover:border-white/50 transition-colors shadow-sm hover:shadow-[0_0_5px_rgba(255,255,255,0.8)]"
           >
              {isMaximized ? <Square size={10} className="text-slate-800" /> : <Maximize2 size={10} className="text-slate-800" />}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onClose(id); }}
-            className="w-10 h-5 flex items-center justify-center hover:bg-[#e81123] bg-transparent hover:text-white rounded-sm border border-transparent transition-colors group"
+            className="w-10 h-full flex items-center justify-center hover:bg-[#e81123] bg-transparent hover:text-white rounded-tr-md rounded-[3px] border border-transparent transition-colors group relative overflow-hidden"
           >
-            <X size={14} className="text-slate-800 group-hover:text-white" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <X size={14} className="text-slate-800 group-hover:text-white relative z-10" />
           </button>
         </div>
       </div>

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, ArrowRight, Search, ChevronRight, 
   Monitor, HardDrive, Star, Download, Globe, 
   ShieldAlert, ChevronDown, Folder, X,
   Bug, Sprout, Music, Hand, TrendingUp, Mail, Youtube, Heart, Trophy,
-  Key, Wifi, Camera
+  Key, Wifi, Camera, Github
 } from 'lucide-react';
 
 interface ProjectItem {
@@ -17,126 +17,40 @@ interface ProjectItem {
   category: string;
 }
 
-const projects: ProjectItem[] = [
-  // Cybersecurity & Network
-  { 
-    id: 1, 
-    name: "Kraken", 
-    desc: "Password & hash cracking tool. Performs dictionary and brute-force attacks against hash types like MD5 and SHA-256.", 
-    icon: Key, 
-    url: "https://github.com/Keshav-gehlot/Kraken-password-cracker",
-    colorClass: "text-red-600",
-    category: "Security"
-  },
-  { 
-    id: 2, 
-    name: "Net-Watch", 
-    desc: "Real-time network monitoring tool. Identifies active devices, tracks bandwidth usage, and alerts on suspicious network activity.", 
-    icon: Wifi, 
-    url: "https://github.com/Keshav-gehlot/Net-Watch",
-    colorClass: "text-slate-700",
-    category: "Network"
-  },
-  { 
-    id: 3, 
-    name: "Malware Visualizer", 
-    desc: "Forensic tool that visualizes the execution path and API calls of potential malware for behavior analysis.", 
-    icon: Bug, 
-    url: "https://github.com/Keshav-gehlot/malware-behavior-visualizer",
-    colorClass: "text-red-500",
-    category: "Security"
-  },
-  
-  // AI, ML & Computer Vision
-  { 
-    id: 4, 
-    name: "CropDoc (CropSenz)", 
-    desc: "AI-based crop disease diagnosis using Convolutional Neural Networks (CNN) to classify disease types from leaf images.", 
-    icon: Sprout, 
-    url: "https://github.com/Samarth-143/CropDoc",
-    colorClass: "text-green-600",
-    category: "AI/ML"
-  },
-  { 
-    id: 5, 
-    name: "Air Piano", 
-    desc: "Virtual musical instrument played by moving hands in the air. Maps spatial hand coordinates to piano notes in real-time.", 
-    icon: Music, 
-    url: "https://github.com/Keshav-gehlot/-tracking-and-air-piano-",
-    colorClass: "text-purple-600",
-    category: "CV"
-  },
-  { 
-    id: 6, 
-    name: "Hands Tracking", 
-    desc: "Computer vision engine capable of tracking 21-point hand landmarks in real-time using MediaPipe.", 
-    icon: Hand, 
-    url: "https://github.com/Keshav-gehlot/Hands-tracking",
-    colorClass: "text-blue-500",
-    category: "CV"
-  },
-  { 
-    id: 7, 
-    name: "Raw Image Processor", 
-    desc: "Algorithms for performing low-level processing on raw image data, bypassing standard camera ISPs.", 
-    icon: Camera, 
-    url: "https://github.com/Keshav-gehlot/raw_image_processor",
-    colorClass: "text-indigo-600",
-    category: "Processing"
-  },
-  { 
-    id: 8, 
-    name: "AI Stock Prediction", 
-    desc: "Financial forecasting tool using Long Short-Term Memory (LSTM) networks to predict future stock trends.", 
-    icon: TrendingUp, 
-    url: "https://github.com/Keshav-gehlot/AI-stock-prediction-",
-    colorClass: "text-emerald-600",
-    category: "AI/ML"
-  },
-
-  // Web & Utilities
-  { 
-    id: 9, 
-    name: "Mass Mailer AI", 
-    desc: "Automated email campaign tool that uses AI to generate personalized subject lines and email content.", 
-    icon: Mail, 
-    url: "https://github.com/Keshav-gehlot/Mass-Mailer-AI-",
-    colorClass: "text-blue-400",
-    category: "Web"
-  },
-  { 
-    id: 10, 
-    name: "YouTube Playlist Fetcher", 
-    desc: "Tool for extracting data and metadata from YouTube playlists for analysis or archiving.", 
-    icon: Youtube, 
-    url: "https://github.com/Keshav-gehlot/youtube-playlist-fetcher",
-    colorClass: "text-red-600",
-    category: "Utility"
-  },
-  { 
-    id: 11, 
-    name: "Wellnest", 
-    desc: "Mental health focused web application providing resources and tracking for user well-being.", 
-    icon: Heart, 
-    url: "https://github.com/Keshav-gehlot/WELLNEST",
-    colorClass: "text-teal-500",
-    category: "Web"
-  },
-  { 
-    id: 12, 
-    name: "IPL Website (RCB)", 
-    desc: "Responsive fan website for the Royal Challengers Bangalore IPL team with player stats and galleries.", 
-    icon: Trophy, 
-    url: "https://github.com/Keshav-gehlot/IPL-website-RCB-",
-    colorClass: "text-red-700",
-    category: "Web"
-  },
-];
-
 export const ProjectsApp: React.FC = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [modalProject, setModalProject] = useState<ProjectItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch('https://api.github.com/users/Keshav-gehlot/repos');
+        if (response.ok) {
+          const data = await response.json();
+          const mappedProjects: ProjectItem[] = data.map((repo: any) => ({
+            id: repo.id,
+            name: repo.name,
+            desc: repo.description || 'No description provided.',
+            icon: Github,
+            url: repo.html_url,
+            colorClass: 'text-slate-700',
+            category: repo.language || 'GitHub Repo',
+          }));
+          setProjects(mappedProjects);
+        } else {
+          console.error("Failed to load GitHub repos");
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
 
   const handleDoubleClick = (project: ProjectItem) => {
     setModalProject(project);
@@ -262,43 +176,49 @@ export const ProjectsApp: React.FC = () => {
         {/* Main Grid View */}
         <div className="flex-1 bg-white p-4 overflow-y-auto" onClick={() => setSelectedId(null)}>
            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-              {filteredProjects.map((project) => (
-                  <div 
-                    key={project.id}
-                    onClick={(e) => { e.stopPropagation(); setSelectedId(project.id); }}
-                    onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(project); }}
-                    className={`
-                        group flex flex-col items-center p-2 rounded-sm cursor-default text-center gap-1.5 transition-all duration-75 min-h-[100px] border
-                        ${selectedId === project.id 
-                            ? 'bg-[#cce8ff] border-[#99d1ff] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.3)]' 
-                            : 'bg-transparent border-transparent hover:bg-[#e8f6fd] hover:border-[#bce8f7]'
-                        }
-                    `}
-                    title={project.desc}
-                  >
-                     <div className="w-12 h-12 flex items-center justify-center relative">
-                        <project.icon 
-                            size={40} 
-                            strokeWidth={1.5} 
-                            className={`
-                                drop-shadow-md z-10
-                                ${project.colorClass}
-                            `} 
-                        />
-                     </div>
-                     <div className="flex flex-col items-center w-full">
-                        <span className={`text-xs w-full break-words leading-tight px-1 line-clamp-2 ${selectedId === project.id ? 'text-slate-900' : 'text-slate-700'}`}>
-                            {project.name}
-                        </span>
-                        <span className="text-[10px] text-slate-400 hidden group-hover:block mt-0.5 truncate w-full px-1">{project.category}</span>
-                     </div>
+              {isLoading ? (
+                  <div className="col-span-full flex flex-col items-center justify-center text-slate-400 py-10">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1c669e] mb-2"></div>
+                      <span>Loading GitHub Repositories...</span>
                   </div>
-              ))}
-              {filteredProjects.length === 0 && (
+              ) : filteredProjects.length === 0 ? (
                   <div className="col-span-full flex flex-col items-center justify-center text-slate-400 py-10">
                       <Search size={24} className="mb-2 opacity-50" />
                       <span>No items match your search.</span>
                   </div>
+              ) : (
+                  filteredProjects.map((project) => (
+                      <div 
+                        key={project.id}
+                        onClick={(e) => { e.stopPropagation(); setSelectedId(project.id); }}
+                        onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(project); }}
+                        className={`
+                            group flex flex-col items-center p-2 rounded-sm cursor-default text-center gap-1.5 transition-all duration-75 min-h-[100px] border
+                            ${selectedId === project.id 
+                                ? 'bg-[#cce8ff] border-[#99d1ff] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.3)]' 
+                                : 'bg-transparent border-transparent hover:bg-[#e8f6fd] hover:border-[#bce8f7]'
+                            }
+                        `}
+                        title={project.desc}
+                      >
+                         <div className="w-12 h-12 flex items-center justify-center relative">
+                            <project.icon 
+                                size={40} 
+                                strokeWidth={1.5} 
+                                className={`
+                                    drop-shadow-md z-10
+                                    ${project.colorClass}
+                                `} 
+                            />
+                         </div>
+                         <div className="flex flex-col items-center w-full">
+                            <span className={`text-xs w-full break-words leading-tight px-1 line-clamp-2 ${selectedId === project.id ? 'text-slate-900' : 'text-slate-700'}`}>
+                                {project.name}
+                            </span>
+                            <span className="text-[10px] text-slate-400 hidden group-hover:block mt-0.5 truncate w-full px-1">{project.category}</span>
+                         </div>
+                      </div>
+                  ))
               )}
            </div>
         </div>

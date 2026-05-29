@@ -8,11 +8,11 @@ Here is Keshav's profile data:
 
 **Contact Info:**
 - Name: Keshav Gehlot
-- Email: gehlotkeshav.kg@gmail.com
+- Email: keshavgehlot18@gmail.com
 - Phone: +91 9829445825
 - Location: Jodhpur, Rajasthan
-- LinkedIn: linkedin.com/in/keshav-gehlot
-- GitHub: github.com/keshavgehlot
+- LinkedIn: linkedin.com/in/keshav-gehlot-304084321
+- GitHub: github.com/Keshav-gehlot
 
 **Professional Summary:**
 Computer Science student specializing in Cybersecurity, currently pursuing Certified Ethical Hacker (CEH) certification. Internships at DRDO and Palo Alto Networks. Experience in cloud security, penetration testing, and automating security tools. Associate Lead for Microsoft Learn Student Ambassadors.

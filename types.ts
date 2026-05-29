@@ -5,8 +5,15 @@ export enum AppId {
   CONTACT = 'CONTACT',
   CHAT = 'CHAT',
   GITHUB = 'GITHUB',
+  LINKEDIN = 'LINKEDIN',
   NO_APP = 'NO_APP',
   TERMINAL = 'TERMINAL',
+  DOCUMENTS = 'DOCUMENTS',
+  PICTURES = 'PICTURES',
+  MUSIC = 'MUSIC',
+  COMPUTER = 'COMPUTER',
+  NETWORK = 'NETWORK',
+  CONTROL_PANEL = 'CONTROL_PANEL',
 }
 
 export interface WindowState {

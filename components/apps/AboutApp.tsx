@@ -9,15 +9,15 @@ const DEFAULT_RESUME_HTML = `
 <div class="mb-6 border-b-2 border-slate-800 pb-4">
     <h1 class="text-4xl font-bold text-[#2c3e50] mb-2 tracking-tight">Keshav Gehlot</h1>
     <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
-        <span class="font-medium">gehlotkeshav.kg@gmail.com</span>
+        <span class="font-medium">keshavgehlot18@gmail.com</span>
         <span class="text-slate-300">|</span>
         <span>(91) 9829445825</span>
         <span class="text-slate-300">|</span>
         <span>Jodhpur, Rajasthan</span>
     </div>
     <div class="flex flex-wrap gap-4 text-sm text-[#1979ca] mt-2 font-semibold">
-        <a href="https://linkedin.com/in/keshav-gehlot" contenteditable="false" target="_blank" rel="noreferrer" class="hover:underline flex items-center gap-1 cursor-pointer">linkedin.com/in/keshav-gehlot</a>
-        <a href="https://github.com/keshavgehlot" contenteditable="false" target="_blank" rel="noreferrer" class="hover:underline flex items-center gap-1 cursor-pointer">github.com/keshavgehlot</a>
+        <a href="https://www.linkedin.com/in/keshav-gehlot-304084321" contenteditable="false" target="_blank" rel="noreferrer" class="hover:underline flex items-center gap-1 cursor-pointer">linkedin.com/in/keshav-gehlot-304084321</a>
+        <a href="https://github.com/Keshav-gehlot" contenteditable="false" target="_blank" rel="noreferrer" class="hover:underline flex items-center gap-1 cursor-pointer">github.com/Keshav-gehlot</a>
     </div>
 </div>
 

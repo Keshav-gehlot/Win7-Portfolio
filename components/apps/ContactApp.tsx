@@ -21,7 +21,7 @@ export const ContactApp: React.FC = () => {
     // Create the mailto link with encoded parameters
     const { name, subject, message } = formData;
     const body = `Name: ${name}\n\nMessage:\n${message}`;
-    const mailtoLink = `mailto:gehlotkeshav.kg@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:keshavgehlot18@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     // Small delay to show "Sending..." state before opening client
     setTimeout(() => {
@@ -40,9 +40,9 @@ export const ContactApp: React.FC = () => {
   };
 
   const socialLinks = [
-    { icon: Mail, label: 'gehlotkeshav.kg@gmail.com', href: 'mailto:gehlotkeshav.kg@gmail.com', color: 'text-blue-600' },
-    { icon: Linkedin, label: 'linkedin.com/in/keshav-gehlot', href: 'https://linkedin.com/in/keshav-gehlot', color: 'text-[#0077b5]' },
-    { icon: Github, label: 'github.com/keshavgehlot', href: 'https://github.com/keshavgehlot', color: 'text-slate-800' },
+    { icon: Mail, label: 'keshavgehlot18@gmail.com', href: 'mailto:keshavgehlot18@gmail.com', color: 'text-blue-600' },
+    { icon: Linkedin, label: 'linkedin.com/in/keshav-gehlot-304084321', href: 'https://www.linkedin.com/in/keshav-gehlot-304084321', color: 'text-[#0077b5]' },
+    { icon: Github, label: 'github.com/Keshav-gehlot', href: 'https://github.com/Keshav-gehlot', color: 'text-slate-800' },
     { icon: LinkIcon, label: 'beacons.ai/keshavgehlot', href: 'https://beacons.ai/keshavgehlot', color: 'text-pink-600' },
   ];
 

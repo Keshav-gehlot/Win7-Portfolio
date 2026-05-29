@@ -11,8 +11,9 @@ import { ChatApp } from './components/apps/ChatApp';
 import { ContactApp } from './components/apps/ContactApp';
 import { NoApp } from './components/apps/NoApp';
 import { TerminalApp } from './components/apps/TerminalApp';
+import { FolderApp } from './components/apps/FolderApp';
 import { AppId, WindowState } from './types';
-import { User, Briefcase, Mail, MessageSquare, Github, ShieldAlert, Terminal } from 'lucide-react';
+import { User, Briefcase, Mail, MessageSquare, Github, ShieldAlert, Terminal, Linkedin, FileText, Image as ImageIcon, Music, Monitor, Globe, Cog } from 'lucide-react';
 import { soundService } from './services/soundService';
 
 const INITIAL_WINDOWS: WindowState[] = [
@@ -82,6 +83,12 @@ const INITIAL_WINDOWS: WindowState[] = [
     position: { x: 300, y: 200 },
     size: { width: 640, height: 400 },
   },
+  { id: AppId.DOCUMENTS, title: 'Documents', icon: FileText, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 7, position: { x: 100, y: 100 }, size: { width: 750, height: 500 } },
+  { id: AppId.PICTURES, title: 'Pictures', icon: ImageIcon, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 8, position: { x: 120, y: 120 }, size: { width: 750, height: 500 } },
+  { id: AppId.MUSIC, title: 'Music', icon: Music, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 9, position: { x: 140, y: 140 }, size: { width: 750, height: 500 } },
+  { id: AppId.COMPUTER, title: 'Computer', icon: Monitor, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 10, position: { x: 160, y: 160 }, size: { width: 750, height: 500 } },
+  { id: AppId.NETWORK, title: 'Network', icon: Globe, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 11, position: { x: 180, y: 180 }, size: { width: 750, height: 500 } },
+  { id: AppId.CONTROL_PANEL, title: 'Control Panel', icon: Cog, isOpen: false, isMinimized: false, isMaximized: false, zIndex: 12, position: { x: 200, y: 200 }, size: { width: 750, height: 500 } },
 ];
 
 const App: React.FC = () => {
@@ -96,6 +103,11 @@ const App: React.FC = () => {
   const [isShuttingDown, setIsShuttingDown] = useState(false);
   const [bsod, setBsod] = useState(false);
   const [keySequence, setKeySequence] = useState<string[]>([]);
+  const [iconSize, setIconSize] = useState<'large' | 'medium' | 'small'>('medium');
+  const [sortOrder, setSortOrder] = useState<'name' | 'size' | 'type' | 'date'>('name');
+  const [autoArrange, setAutoArrange] = useState(true);
+  const [alignToGrid, setAlignToGrid] = useState(true);
+  const [showDesktopIcons, setShowDesktopIcons] = useState(true);
 
   // BSOD Easter Egg Listener
   useEffect(() => {
@@ -130,6 +142,11 @@ const App: React.FC = () => {
     if (id === AppId.GITHUB) {
         soundService.play('click');
         window.open('https://github.com/Keshav-gehlot', '_blank');
+        return;
+    }
+    if (id === AppId.LINKEDIN) {
+        soundService.play('click');
+        window.open('https://www.linkedin.com/in/keshav-gehlot-304084321', '_blank');
         return;
     }
 
@@ -187,7 +204,7 @@ const App: React.FC = () => {
                     size: w.id === AppId.PROJECTS ? { width: 750, height: 500 } : { width: 600, height: 450 } 
                  };
              } else {
-                 return { ...w, isMaximized: true, position: { x: 0, y: 0 }, size: { width: window.innerWidth, height: window.innerHeight - 40 } };
+                 return { ...w, isMaximized: true, position: { x: 0, y: 0 }, size: { width: window.innerWidth, height: window.innerHeight - 44 } };
              }
          });
      });
@@ -273,6 +290,7 @@ const App: React.FC = () => {
       { id: AppId.NO_APP, label: 'Admin Request', icon: ShieldAlert },
       { id: AppId.CONTACT, label: 'Contact Me', icon: Mail },
       { id: AppId.GITHUB, label: 'GitHub', icon: Github },
+      { id: AppId.LINKEDIN, label: 'LinkedIn', icon: Linkedin },
   ];
 
   if (bsod) {
@@ -337,18 +355,24 @@ const App: React.FC = () => {
       />
       <LiveBackground />
 
-      <div className="absolute top-0 left-0 bottom-10 w-full flex flex-col flex-wrap content-start items-start gap-4 p-4 z-0 pointer-events-none">
-        {desktopIcons.map(icon => (
+      <div className="absolute top-0 left-0 bottom-10 w-full flex flex-col flex-wrap content-start items-start gap-4 p-4 z-0 pointer-events-none" style={{ gap: iconSize === 'large' ? '24px' : iconSize === 'small' ? '8px' : '16px' }}>
+        {showDesktopIcons && desktopIcons
+          .slice() // copy
+          .sort((a, b) => {
+             if (sortOrder === 'name') return a.label.localeCompare(b.label);
+             return 0; // fallback
+          })
+          .map(icon => (
             <button 
                 key={icon.id}
                 onDoubleClick={(e) => { e.stopPropagation(); handleOpenApp(icon.id); }}
-                className="pointer-events-auto flex flex-col items-center gap-1 w-[80px] h-[90px] group text-center cursor-default hover:bg-white/10 rounded border border-transparent hover:border-white/20 p-2 transition-colors focus:bg-white/20 focus:border-white/30 active:bg-white/20"
+                className={`pointer-events-auto flex flex-col items-center gap-1 group text-center cursor-default hover:bg-white/10 rounded border border-transparent hover:border-white/20 p-2 transition-colors focus:bg-white/20 focus:border-white/30 active:bg-white/20 ${iconSize === 'large' ? 'w-[100px] h-[110px]' : iconSize === 'small' ? 'w-[64px] h-[74px]' : 'w-[80px] h-[90px]'}`}
                 onClick={(e) => { e.stopPropagation(); soundService.play('click'); }}
             >
                 <div className="drop-shadow-2xl filter shadow-black transition-transform group-hover:scale-105 group-active:scale-95">
-                    <icon.icon size={42} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" strokeWidth={1.5} />
+                    <icon.icon size={iconSize === 'large' ? 56 : iconSize === 'small' ? 32 : 42} className="text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]" strokeWidth={1.5} />
                 </div>
-                <span className="text-white text-xs drop-shadow-[0_1px_2px_rgba(0,0,0,1)] font-medium leading-tight line-clamp-2 shadow-black text-shadow-sm" style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}>
+                <span className={`text-white drop-shadow-[0_1px_2px_rgba(0,0,0,1)] font-medium leading-tight line-clamp-2 shadow-black text-shadow-sm ${iconSize === 'large' ? 'text-sm mt-1' : iconSize === 'small' ? 'text-[10px]' : 'text-xs'}`} style={{ textShadow: '0 0 4px rgba(0,0,0,0.8)' }}>
                     {icon.label}
                 </span>
             </button>
@@ -372,6 +396,7 @@ const App: React.FC = () => {
           {window.id === AppId.CONTACT && <ContactApp />}
           {window.id === AppId.NO_APP && <NoApp />}
           {window.id === AppId.TERMINAL && <TerminalApp />}
+          {[AppId.DOCUMENTS, AppId.PICTURES, AppId.MUSIC, AppId.COMPUTER, AppId.NETWORK, AppId.CONTROL_PANEL].includes(window.id) && <FolderApp folderId={window.id} />}
         </Window>
       ))}
 
@@ -386,6 +411,11 @@ const App: React.FC = () => {
                 document.body.appendChild(bg);
                 setTimeout(() => document.body.removeChild(bg), 50);
             }} 
+            iconSize={iconSize} setIconSize={setIconSize}
+            sortOrder={sortOrder} setSortOrder={setSortOrder}
+            autoArrange={autoArrange} setAutoArrange={setAutoArrange}
+            alignToGrid={alignToGrid} setAlignToGrid={setAlignToGrid}
+            showDesktopIcons={showDesktopIcons} setShowDesktopIcons={setShowDesktopIcons}
           />
       )}
 

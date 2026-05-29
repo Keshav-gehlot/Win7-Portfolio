@@ -31,20 +31,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
       <div className="relative z-10 flex flex-col items-center">
          {/* User Picture Frame */}
          <div 
-            className="w-48 h-48 mb-8 relative group cursor-pointer transition-transform active:scale-95" 
+            className="w-32 h-32 sm:w-48 sm:h-48 mb-6 sm:mb-8 relative group cursor-pointer transition-transform duration-300" 
             onClick={() => !isLoggingIn && handleLogin()}
          >
-             <div className="absolute inset-0 bg-gradient-to-br from-[#f0f0f0] to-[#c0c0c0] rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.5)] p-1.5 border border-[#808080]">
-                <div className="w-full h-full bg-[#dcebfd] rounded border border-[#a0a0a0] flex items-center justify-center overflow-hidden shadow-inner relative">
-                    <User size={110} className="text-[#566f8e] drop-shadow-sm" strokeWidth={1} />
+             <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-xl shadow-[0_15px_35px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.4)] p-[3px] border border-white/20 transition-transform group-hover:scale-105 group-active:scale-95 duration-300">
+                <div className="w-full h-full bg-gradient-to-br from-[#dcebfd] to-[#abc8e9] rounded-[9px] border px-1 border-white/30 flex items-center justify-center overflow-hidden shadow-inner relative">
+                    <User className="text-[#6581a0] drop-shadow-md translate-y-2 opacity-90 w-24 h-24 sm:w-[130px] sm:h-[130px]" strokeWidth={1} />
                     {/* Gloss Shine on User Image */}
-                    <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent"></div>
+                    <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/60 to-transparent pointer-events-none"></div>
                 </div>
              </div>
          </div>
 
          {/* User Name */}
-         <div className="text-white text-4xl font-normal mb-6 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide">
+         <div className="text-white text-3xl sm:text-5xl font-light mb-6 drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] tracking-wide font-[Segoe UI,sans-serif]">
              Keshav
          </div>
 
